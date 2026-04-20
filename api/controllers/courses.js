@@ -265,6 +265,7 @@ courseRouter.post("/chapters/:chapterId/quiz/submit", async (req, res) => {
         questionIndex: idx,
         provided,
         correct,
+        correctIndex: correct,
         isCorrect,
       };
     });
@@ -290,11 +291,13 @@ courseRouter.post("/chapters/:chapterId/quiz/submit", async (req, res) => {
     if (existingIndex !== -1) {
       enrollment.chapter_quiz_results[existingIndex].score = score;
       enrollment.chapter_quiz_results[existingIndex].passed = passed;
+      enrollment.chapter_quiz_results[existingIndex].details = details;
     } else {
       enrollment.chapter_quiz_results.push({
         chapter: chapter._id,
         score,
         passed,
+        details,
       });
     }
 

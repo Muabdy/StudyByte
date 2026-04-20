@@ -111,7 +111,7 @@ const QuizPage = () => {
   };
 
   const handleSelect = (qIndex, optIndex) => {
-    if (completed || (result && result.passed)) return;
+    if (completed) return;
     const n = [...answers];
     n[qIndex] = optIndex;
     setAnswers(n);
@@ -148,6 +148,12 @@ const QuizPage = () => {
     }
   };
 
+  const handleRetry = () => {
+    setResult(null);
+    setAnswers(new Array(questions.length).fill(null));
+    setCompleted(false);
+  };
+
   if (loading) return <div className="container py-5">Loading quiz...</div>;
   if (!chapter) return null;
 
@@ -174,34 +180,75 @@ const QuizPage = () => {
         <div className="card p-3">No quiz available for this chapter.</div>
       ) : (
         <div className="card shadow-sm p-3">
-          {questions.map((q, i) => (
-            <div key={i} className="mb-3">
-              <div className="fw-semibold mb-2">
-                {i + 1}. {q.question}
+          {questions.map((q, i) => {
+            const resultDetail =
+              result && result.details
+                ? result.details.find((d) => d.questionIndex === i)
+                : null;
+            const isAnswered = result && resultDetail;
+            const isCorrect = isAnswered && resultDetail.isCorrect;
+            return (
+              <div key={i} className="mb-3">
+                <div className="fw-semibold mb-2">
+                  {i + 1}. {q.question}
+                </div>
+                <div>
+                  {(q.options || []).map((opt, oi) => {
+                    const isUserSelected = answers[i] === oi;
+                    const isCorrectAnswer =
+                      result &&
+                      resultDetail &&
+                      resultDetail.correctIndex === oi;
+
+                    let optionClass = "form-check";
+                    if (isAnswered) {
+                      if (isCorrectAnswer)
+                        optionClass += " border border-success bg-light";
+                      if (isUserSelected && !isCorrect)
+                        optionClass += " border border-danger bg-light";
+                    }
+
+                    return (
+                      <div
+                        className={optionClass}
+                        key={oi}
+                        style={{ padding: isAnswered ? "8px" : "0" }}
+                      >
+                        <input
+                          className="form-check-input"
+                          type="radio"
+                          name={`q-${i}`}
+                          id={`q-${i}-opt-${oi}`}
+                          checked={isUserSelected}
+                          onChange={() => handleSelect(i, oi)}
+                          disabled={
+                            completed ||
+                            (result && result.passed && !isAnswered)
+                          }
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor={`q-${i}-opt-${oi}`}
+                        >
+                          {opt}
+                          {isAnswered && isCorrectAnswer && (
+                            <span className="badge bg-success ms-2">
+                              ✓ Correct
+                            </span>
+                          )}
+                          {isAnswered && isUserSelected && !isCorrect && (
+                            <span className="badge bg-danger ms-2">
+                              ✗ Wrong
+                            </span>
+                          )}
+                        </label>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-              <div>
-                {(q.options || []).map((opt, oi) => (
-                  <div className="form-check" key={oi}>
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      name={`q-${i}`}
-                      id={`q-${i}-opt-${oi}`}
-                      checked={answers[i] === oi}
-                      onChange={() => handleSelect(i, oi)}
-                      disabled={completed || (result && result.passed)}
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor={`q-${i}-opt-${oi}`}
-                    >
-                      {opt}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+            );
+          })}
 
           <div className="d-flex align-items-center">
             {!result && (
@@ -218,8 +265,8 @@ const QuizPage = () => {
               <>
                 <button
                   className="btn btn-warning me-3"
-                  disabled={!allAnswered || submitting}
-                  onClick={handleSubmit}
+                  disabled={submitting}
+                  onClick={handleRetry}
                 >
                   {submitting ? "Retrying..." : "Retry"}
                 </button>
@@ -236,23 +283,6 @@ const QuizPage = () => {
               </div>
             )}
           </div>
-
-          {result && result.details && (
-            <div className="mt-3">
-              <h6>Details</h6>
-              <ul className="list-unstyled small">
-                {result.details.map((d, idx) => (
-                  <li
-                    key={idx}
-                    className={d.isCorrect ? "text-success" : "text-danger"}
-                  >
-                    Q{d.questionIndex + 1}:{" "}
-                    {d.isCorrect ? "Correct" : "Incorrect"}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
       )}
     </div>
