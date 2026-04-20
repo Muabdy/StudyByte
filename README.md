@@ -14,6 +14,7 @@ Key features
 - User registration and JWT authentication
 - Enrollment and progress tracking (chapter completion, quiz/exam results)
 - Chapter quizzes and final exam endpoints (scored and stored)
+- Admin panel to manage users and delete accounts
 
 Repository layout (important files)
 
@@ -105,6 +106,9 @@ API endpoints (high level)
 - POST `/api/courses/chapters/:chapterId/quiz/submit` — submit chapter quiz answers (auth)
 - GET `/api/courses/:courseId/exam` — fetch final exam (auth)
 - POST `/api/courses/:courseId/exam/submit` — submit final exam answers (auth)
+- POST `/api/users/admin/verify` — verify admin password (password: `ninjahero99`)
+- GET `/api/users/admin/users` — list all users with course count
+- DELETE `/api/users/admin/users/:userId` — delete a user and their enrollments
 
 Example: uploading PDF (curl)
 
@@ -113,6 +117,20 @@ curl -X POST "http://localhost:3000/api/courses/upload-pdf" \
   -H "Authorization: Bearer <TOKEN>" \
   -F "file=@/path/to/book.pdf"
 ```
+
+Admin Panel
+
+The admin panel (`/admin` route) allows administrators to manage users in the system.
+
+**Access:** Navigate to `/admin` and enter the admin password: `ninjahero99`
+
+**Features:**
+
+- View all users (username, email, course count, creation date)
+- Delete users (removes user and all associated enrollments/data)
+- Search and manage user accounts
+
+**Note:** The admin password is hardcoded for simplicity. For production, consider storing it securely as a hashed environment variable.
 
 Security & notes
 
