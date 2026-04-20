@@ -68,12 +68,13 @@ if (fs.existsSync(indexHtmlPath)) {
   });
 }
 
-try {
-  mongoose.connect(mongoUrl);
-  console.log("Connected to DB");
-} catch {
-  console.log("Error connecting to DB");
-}
+mongoose.connect(mongoUrl)
+  .then(() => {
+    console.log("✅ Connected to DB");
+  })
+  .catch((err) => {
+    console.error("❌ DB Connection Error:", err);
+  });
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

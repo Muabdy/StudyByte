@@ -1,6 +1,6 @@
 import { PDFParse } from "pdf-parse";
 
-export async function extractPdfText(buffer, maxPages = 50) {
+export async function extractPdfText(buffer, maxPages = 100) {
   const parser = new PDFParse({ data: buffer }); // buffer from multer
 
   const result = await parser.getText();

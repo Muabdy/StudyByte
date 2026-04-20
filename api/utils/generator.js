@@ -55,7 +55,7 @@ RULES:
 - Keep it structured and readable
 
 TEXT:
-${pdfText.slice(0, 20000)}
+${pdfText.slice(0, 7000)}
 `;
 
   const res = await llm.invoke([{ role: "user", content: prompt }]);
