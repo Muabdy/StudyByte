@@ -73,6 +73,21 @@ const submitFinalExam = async (courseId, answers) => {
   return response.data;
 };
 
+const verifyAdminPassword = async (password) => {
+  const response = await api.post(`${usersBaseUrl}/admin/verify`, { password });
+  return response.data;
+};
+
+const getAdminUsers = async () => {
+  const response = await api.get(`${usersBaseUrl}/admin/users`);
+  return response.data;
+};
+
+const deleteUserAdmin = async (userId) => {
+  const response = await api.delete(`${usersBaseUrl}/admin/users/${userId}`);
+  return response.data;
+};
+
 export default {
   setToken,
   setBaseUrl,
@@ -84,4 +99,7 @@ export default {
   submitChapterQuiz,
   getFinalExam,
   submitFinalExam,
+  verifyAdminPassword,
+  getAdminUsers,
+  deleteUserAdmin,
 };

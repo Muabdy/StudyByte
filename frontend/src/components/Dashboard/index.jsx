@@ -14,6 +14,12 @@ const Dashboard = () => {
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
+  const statusOrder = {
+    "not started": 0,
+    "in progress": 1,
+    completed: 2,
+  };
+
   // theme (light/dark)
   const [theme, setTheme] = useState(() => {
     try {
@@ -246,35 +252,48 @@ const Dashboard = () => {
               </div>
             ) : (
               <div className="list-group">
-                {courses.map((enrollment) => {
-                  const course = enrollment.course || enrollment;
-                  const id =
-                    course._id ||
-                    course.id ||
-                    Math.random().toString(36).slice(2, 9);
-                  return (
-                    <button
-                      key={id}
-                      className="list-group-item list-group-item-action"
-                      onClick={() => onCourseClick(enrollment)}
-                    >
-                      <div className="d-flex w-100 justify-content-between">
-                        <h6 className="mb-1">
-                          {course.title || "Untitled course"}
-                        </h6>
-                        <small className="text-muted">
-                          {enrollment.status || "enrolled"}
-                        </small>
-                      </div>
-                      <p
-                        className="mb-1 text-truncate"
-                        style={{ maxWidth: "70%" }}
+                {[...courses]
+                  .sort((a, b) => {
+                    const statusA = (a.status || "not started").toLowerCase();
+                    const statusB = (b.status || "not started").toLowerCase();
+                    console.log(
+                      "Sorting:",
+                      statusA,
+                      statusB,
+                      statusOrder[statusA],
+                      statusOrder[statusB]
+                    );
+                    return statusOrder[statusA] - statusOrder[statusB];
+                  })
+                  .map((enrollment) => {
+                    const course = enrollment.course || enrollment;
+                    const id =
+                      course._id ||
+                      course.id ||
+                      Math.random().toString(36).slice(2, 9);
+                    return (
+                      <button
+                        key={id}
+                        className="list-group-item list-group-item-action"
+                        onClick={() => onCourseClick(enrollment)}
                       >
-                        {course.description || "No description"}
-                      </p>
-                    </button>
-                  );
-                })}
+                        <div className="d-flex w-100 justify-content-between">
+                          <h6 className="mb-1">
+                            {course.title || "Untitled course"}
+                          </h6>
+                          <small className="text-muted">
+                            {enrollment.status || "enrolled"}
+                          </small>
+                        </div>
+                        <p
+                          className="mb-1 text-truncate"
+                          style={{ maxWidth: "70%" }}
+                        >
+                          {course.description || "No description"}
+                        </p>
+                      </button>
+                    );
+                  })}
               </div>
             )}
           </div>
