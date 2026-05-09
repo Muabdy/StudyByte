@@ -21,11 +21,11 @@ const App = () => {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/" element={<Navigate to="/signup" replace />} />
+            <Route path="/admin" element={<Admin />} />
           </>
         ) : (
           <>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/admin" element={<Admin />} />
             <Route path="/course/:id" element={<CoursePage />} />
             <Route
               path="/course/:courseId/final-exam"

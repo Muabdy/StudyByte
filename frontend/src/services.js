@@ -88,6 +88,13 @@ const deleteUserAdmin = async (userId) => {
   return response.data;
 };
 
+const getUserCourses = async (userId) => {
+  const response = await api.get(
+    `${usersBaseUrl}/admin/users/${userId}/courses`
+  );
+  return response.data;
+};
+
 export default {
   setToken,
   setBaseUrl,
@@ -102,4 +109,5 @@ export default {
   verifyAdminPassword,
   getAdminUsers,
   deleteUserAdmin,
+  getUserCourses,
 };

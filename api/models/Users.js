@@ -1,21 +1,24 @@
 import mongoose from "mongoose";
-const userSchema = mongoose.Schema({
-  username: {
-    type: String,
-    unique: true,
-    required: true,
-    minLength: 3,
+const userSchema = mongoose.Schema(
+  {
+    username: {
+      type: String,
+      unique: true,
+      required: true,
+      minLength: 3,
+    },
+    email: {
+      type: String,
+      required: true,
+      minLength: 3,
+    },
+    passwordHash: {
+      type: String,
+      required: true,
+    },
   },
-  email: {
-    type: String, 
-    required: true,
-    minLength: 3,
-  },
-  passwordHash: {
-    type: String,
-    required: true,
-  },
-});
+  { timestamps: true }
+);
 
 userSchema.set("toJSON", {
   transform: (document, returnedObject) => {

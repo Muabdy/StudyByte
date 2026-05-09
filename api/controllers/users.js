@@ -80,12 +80,37 @@ userRouter.get("/admin/users", async (request, response) => {
           username: user.username,
           email: user.email,
           courseCount,
-          createdAt: user.createdAt || new Date(),
+          createdAt: user.createdAt,
         };
       })
     );
 
     response.status(200).json({ users: usersWithCourses });
+  } catch (err) {
+    response.status(500).json({ error: err.message });
+  }
+});
+
+userRouter.get("/admin/users/:userId/courses", async (request, response) => {
+  try {
+    const { userId } = request.params;
+
+    const enrollments = await Enrollment.find({ user: userId })
+      .populate("course")
+      .lean();
+
+    const courses = enrollments.map((enrollment) => ({
+      id: enrollment._id,
+      courseId: enrollment.course._id,
+      title: enrollment.course.title,
+      description: enrollment.course.description,
+      status: enrollment.status,
+      completedChapters: enrollment.completed_chapters.length,
+      quizResults: enrollment.chapter_quiz_results,
+      examResults: enrollment.final_exam_results,
+    }));
+
+    response.status(200).json({ courses });
   } catch (err) {
     response.status(500).json({ error: err.message });
   }

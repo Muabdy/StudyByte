@@ -188,7 +188,7 @@ const Dashboard = () => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h3 className="mb-0">
-            Welcome{user?.username ? `, ${user.username}` : ""} 👋
+            Welcome{user?.username ? ` ${user.username}` : ""} 👋
           </h3>
           <small className="text-muted">
             Your learning hub — PDF → interactive courses
