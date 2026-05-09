@@ -13,6 +13,9 @@ const Admin = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [userCourses, setUserCourses] = useState([]);
+  const [loadingCourses, setLoadingCourses] = useState(false);
 
   const handleVerifyPassword = async () => {
     if (!password.trim()) {
@@ -65,6 +68,28 @@ const Admin = () => {
     }
   };
 
+  const handleViewUserCourses = async (userId, username) => {
+    setSelectedUser({ id: userId, username });
+    setLoadingCourses(true);
+    try {
+      const data = await services.getUserCourses(userId);
+      setUserCourses(data.courses || []);
+    } catch (err) {
+      console.error(err);
+      dispatch(
+        notify({ type: "danger", message: "Failed to load user courses" })
+      );
+      setUserCourses([]);
+    } finally {
+      setLoadingCourses(false);
+    }
+  };
+
+  const handleCloseCoursesView = () => {
+    setSelectedUser(null);
+    setUserCourses([]);
+  };
+
   const handleLogout = () => {
     setAuthenticated(false);
     setUsers([]);
@@ -100,6 +125,99 @@ const Admin = () => {
                 {verifying ? "Verifying..." : "Access"}
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show user courses view
+  if (selectedUser) {
+    return (
+      <div className="container py-5">
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h3 className="mb-0">Courses for {selectedUser.username}</h3>
+          <button
+            className="btn btn-sm btn-secondary"
+            onClick={handleCloseCoursesView}
+          >
+            Back
+          </button>
+        </div>
+
+        <div className="card shadow-sm">
+          <div className="card-header bg-light">
+            <h5 className="mb-0">User Courses</h5>
+          </div>
+          <div className="card-body p-0">
+            {loadingCourses ? (
+              <div className="p-3 text-muted">Loading courses...</div>
+            ) : userCourses.length === 0 ? (
+              <div className="p-3 text-muted">No courses found</div>
+            ) : (
+              <div className="table-responsive">
+                <table className="table table-hover mb-0">
+                  <thead className="table-light">
+                    <tr>
+                      <th>Course Title</th>
+                      <th>Status</th>
+                      <th>Completed Chapters</th>
+                      <th>Quiz Results</th>
+                      <th>Exam Results</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {userCourses.map((course) => (
+                      <tr key={course.id}>
+                        <td>{course.title}</td>
+                        <td>
+                          <span
+                            className={`badge ${
+                              course.status === "completed"
+                                ? "bg-success"
+                                : course.status === "in progress"
+                                ? "bg-warning"
+                                : "bg-secondary"
+                            }`}
+                          >
+                            {course.status || "not started"}
+                          </span>
+                        </td>
+                        <td>{course.completedChapters}</td>
+                        <td>
+                          {course.quizResults.length > 0 ? (
+                            <div className="small">
+                              {course.quizResults.map((result, idx) => (
+                                <div key={idx}>
+                                  Score: {result.score} (
+                                  {result.passed ? "Passed" : "Failed"})
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-muted">-</span>
+                          )}
+                        </td>
+                        <td>
+                          {course.examResults.length > 0 ? (
+                            <div className="small">
+                              {course.examResults.map((result, idx) => (
+                                <div key={idx}>
+                                  Score: {result.score} (
+                                  {result.passed ? "Passed" : "Failed"})
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-muted">-</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -146,8 +264,20 @@ const Admin = () => {
                           {user.courseCount}
                         </span>
                       </td>
-                      <td>{new Date(user.createdAt).toLocaleDateString()}</td>
                       <td>
+                        {user.createdAt
+                          ? new Date(user.createdAt).toLocaleDateString()
+                          : "N/A"}
+                      </td>
+                      <td>
+                        <button
+                          className="btn btn-sm btn-info me-2"
+                          onClick={() =>
+                            handleViewUserCourses(user.id, user.username)
+                          }
+                        >
+                          View Courses
+                        </button>
                         <button
                           className="btn btn-sm btn-danger"
                           onClick={() =>
